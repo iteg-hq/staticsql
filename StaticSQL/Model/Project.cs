@@ -6,13 +6,15 @@ namespace StaticSQL
 {
     public class Project
     {
-        [JsonProperty("tables")]
-        public readonly ICollection<string> TablePaths = new List<string>();
+        [JsonProperty("entities")]
+        public readonly ICollection<string> EntityPaths = new List<string>();
 
-        [JsonProperty("reserved")]
-        public readonly ICollection<string> ReservedWords = new List<string>();
+        [JsonProperty("flows")]
+        public readonly ICollection<string> FlowPaths = new List<string>();
 
-        public ICollection<Table> Tables = new List<Table>();
+        public ICollection<Entity> Entities = new List<Entity>();
+
+        public ICollection<Flow> Flows = new List<Flow>();
 
         public string DirectoryName;
 
@@ -20,18 +22,31 @@ namespace StaticSQL
 
         public static Project Load(string path)
         {
-            string text = System.IO.File.ReadAllText(path);
-            Project project = JsonConvert.DeserializeObject<Project>(text);
+            Project project = Load<Project>(path);
 
             project.DirectoryName = Path.GetDirectoryName(path);
             project.FileName = Path.GetFileName(path);
 
-            foreach (string tablePath in project.TablePaths)
+            foreach (string EntityPath in project.EntityPaths)
             {
-                Table table = Table.Load(Path.Combine(project.DirectoryName, tablePath));
-                project.Tables.Add(table);
+                Entity Entity = Load<Entity>(Path.Combine(project.DirectoryName, EntityPath));
+                project.Entities.Add(Entity);
             }
+
+            foreach (string flowPath in project.FlowPaths)
+            {
+                Flow flow = Load<Flow>(Path.Combine(project.DirectoryName, flowPath));
+                project.Flows.Add(flow);
+            }
+
             return project;
+        }
+
+        static public T Load<T>(string path)
+        {
+            string text = System.IO.File.ReadAllText(path);
+            T Entity = JsonConvert.DeserializeObject<T>(text, new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects });
+            return Entity;
         }
     }
 }
