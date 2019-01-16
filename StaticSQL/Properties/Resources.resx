@@ -117,7 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="IdentifierRegex" xml:space="preserve">
+    <value>^[a-zA-Z_][a-zA-Z0-9_]*$</value>
+  </data>
   <data name="Reserved" xml:space="preserve">
-    <value>policy,monthname,status,description,month,year,day,id,key</value>
+    <value>policy,monthname,status,description,month,year,day,id,key,version</value>
+  </data>
+  <data name="UndefinedValue" xml:space="preserve">
+    <value>&lt;undefined&gt;</value>
   </data>
 </root>

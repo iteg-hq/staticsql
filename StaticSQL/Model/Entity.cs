@@ -6,27 +6,34 @@ namespace StaticSQL
     public class Entity
     {
         [JsonProperty("schema")]
-        public Name SchemaName;
+        public Name SchemaName = Properties.Resources.UndefinedValue;
 
         [JsonProperty("name")]
-        public Name Name;
+        public Name Name = Properties.Resources.UndefinedValue;
 
         [JsonProperty("description")]
         public string Description = "(No description)";
 
+        [JsonProperty("source")]
+        public string Source = Properties.Resources.UndefinedValue;
+
         [JsonProperty("tags")]
         public ISet<string> Tags = new HashSet<string>();
 
-        [JsonProperty("columns")]
-        public IEnumerable<Attribute> Attributes = new List<Attribute>();
+        [JsonProperty("attributes")]
+        public IList<Attribute> Attributes = new List<Attribute>();
 
-        public void TransformNames(NameFormatter nameTransform)
+        [JsonProperty("data")]
+        public IList<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
+
+        internal void AfterLoad()
         {
-            SchemaName = nameTransform(SchemaName);
-            Name = nameTransform(Name);
-            foreach(Attribute attribute in Attributes)
+            int index = 0;
+            foreach(Attribute attr in Attributes)
             {
-                attribute.Name = nameTransform(attribute.Name);
+                attr.Entity = this;
+                attr.Index = index;
+                index += 1;
             }
         }
     }

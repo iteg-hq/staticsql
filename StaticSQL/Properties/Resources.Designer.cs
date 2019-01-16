@@ -61,11 +61,29 @@ namespace StaticSQL.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to policy,monthname,status,description,month,year,day,id,key.
+        ///   Looks up a localized string similar to ^[a-zA-Z_][a-zA-Z0-9_]*$.
+        /// </summary>
+        internal static string IdentifierRegex {
+            get {
+                return ResourceManager.GetString("IdentifierRegex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to policy,monthname,status,description,month,year,day,id,key,version.
         /// </summary>
         internal static string Reserved {
             get {
                 return ResourceManager.GetString("Reserved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;undefined&gt;.
+        /// </summary>
+        internal static string UndefinedValue {
+            get {
+                return ResourceManager.GetString("UndefinedValue", resourceCulture);
             }
         }
     }
