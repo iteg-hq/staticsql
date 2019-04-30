@@ -6,8 +6,6 @@ using System.IO.Abstractions.TestingHelpers;
 
 namespace UnitTests
 {
-
-
     [TestClass]
     public class TestProject
     {
@@ -67,6 +65,33 @@ namespace UnitTests
         {
             var fs = GetFileSystem();
             Assert.ThrowsException<StaticSQLException>(() => Project.Load(@"C:\double", fs));
+        }
+
+        [TestMethod]
+        public void TestType()
+        {
+            StaticSQL.Attribute attr = new StaticSQL.Attribute() { DataType = "INT" };
+            Assert.AreEqual("INT", attr.SqlDataType);
+            Assert.AreEqual("int", attr.DotNetDataType);
+        }
+
+        [TestMethod]
+        public void TestTypeLength()
+        {
+            StaticSQL.Attribute attr = new StaticSQL.Attribute() { DataType = "NVARCHAR(10)" };
+            Assert.AreEqual("NVARCHAR", attr.SqlDataType);
+            Assert.AreEqual(10, attr.Length);
+            Assert.AreEqual("string", attr.DotNetDataType);
+        }
+
+        [TestMethod]
+        public void TestTypePrecision()
+        {
+            StaticSQL.Attribute attr = new StaticSQL.Attribute() { DataType = "DECIMAL(10,4)" };
+            Assert.AreEqual("DECIMAL", attr.SqlDataType);
+            Assert.AreEqual(10, attr.Length);
+            Assert.AreEqual(4, attr.Precision);
+            Assert.AreEqual("Decimal", attr.DotNetDataType);
         }
     }
 }
