@@ -76,15 +76,21 @@ namespace StaticSQL
             }
             else
             {
-                throw new System.Exception();
+                throw new Exception();
             }
 
             project.ProjectFolderPath = fileSystem.Path.Combine(folder.FullName, project.relativeProjectFolderPath);
 
             foreach (string entityPath in fileSystem.Directory.GetFiles(project.ProjectFolderPath, ".\\*.json", System.IO.SearchOption.AllDirectories))
             {
-                Entity entity = Project.LoadJSON<Entity>(entityPath, fileSystem);
-                entity.AfterLoad();
+                Entity entity = LoadJSON<Entity>(entityPath, fileSystem);
+                int index = 0;
+                foreach (Attribute attr in entity.Attributes)
+                {
+                    attr.Entity = entity;
+                    attr.Index = index;
+                    index += 1;
+                }
                 project.Entities.Add(entity);
             }
 
@@ -96,12 +102,20 @@ namespace StaticSQL
         static private T LoadJSON<T>(string path, IFileSystem fileSystem)
         {
             string text = fileSystem.File.ReadAllText(path);
-            return JsonConvert.DeserializeObject<T>(text);
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(text);
+            }
+            catch(Exception exception)
+            {
+                throw new StaticSQLException($"Error loading ${path}", exception);
+            }
         }
     }
 
     public class StaticSQLException : Exception
     {
         public StaticSQLException(string message) : base(message) { }
+        public StaticSQLException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

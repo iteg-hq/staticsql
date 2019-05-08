@@ -25,16 +25,5 @@ namespace StaticSQL
 
         [JsonProperty("data")]
         public IList<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
-
-        internal void AfterLoad()
-        {
-            int index = 0;
-            foreach(Attribute attr in Attributes)
-            {
-                attr.Entity = this;
-                attr.Index = index;
-                index += 1;
-            }
-        }
     }
 }
