@@ -42,59 +42,59 @@ namespace StaticSQL
                 }
                 switch(SqlDataType){
                     case "BIGINT":
-                        DotNetDataType = "long";
+                        DotNetDataType = "System.Int64";
                         FriendlyDataType = "integer";
                         break;
 
                     case "INT":
                     case "SMALLINT":
                     case "TINYINT":
-                        DotNetDataType = "int";
+                        DotNetDataType = "System.Int32";
                         FriendlyDataType = "integer";
                         break;
 
                     case "BIT":
-                        DotNetDataType = "bool";
+                        DotNetDataType = "System.Boolean";
                         FriendlyDataType = "yes/no flag";
                         break;
 
                     case "UNIQUEIDENTIFIER":
-                        DotNetDataType = "Guid";
+                        DotNetDataType = "System.Guid";
                         FriendlyDataType = "unique identifier";
                         break;
 
                     case "BINARY":
-                        DotNetDataType = "bool";
+                        DotNetDataType = "System.Byte[]";
                         FriendlyDataType = "binary data";
                         break;
 
                     case "CHAR":
                     case "NCHAR":
+                        DotNetDataType = "System.String";
                         FriendlyDataType = "fixed-length string";
-                        DotNetDataType = "string";
                         break;
 
                     case "NVARCHAR":
                     case "VARCHAR":
-                        DotNetDataType = "string";
+                        DotNetDataType = "System.String";
                         FriendlyDataType = "string";
                         break;
 
                     case "DATE":
+                        DotNetDataType = "System.DateTime";
                         FriendlyDataType = "date";
-                        DotNetDataType = "DateTime";
                         break;
 
                     case "DATETIME":
                     case "DATETIME2":
+                        DotNetDataType = "System.DateTime";
                         FriendlyDataType = "date and time";
-                        DotNetDataType = "DateTime";
                         break;
 
                     case "DECIMAL":
                     case "NUMERIC":
+                        DotNetDataType = "System.Decimal";
                         FriendlyDataType = "decimal number";
-                        DotNetDataType = "Decimal";
                         break;
 
 
