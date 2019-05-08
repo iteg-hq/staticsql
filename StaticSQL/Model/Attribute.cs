@@ -12,6 +12,9 @@ namespace StaticSQL
         [JsonProperty("name")]
         public Name Name;
 
+        [JsonProperty("description")]
+        public string Description;
+
         [JsonProperty("referenced_table")]
         public Name ReferencedTableName;
 
@@ -40,39 +43,61 @@ namespace StaticSQL
                 switch(SqlDataType){
                     case "BIGINT":
                         DotNetDataType = "long";
+                        FriendlyDataType = "integer";
                         break;
 
                     case "INT":
                     case "SMALLINT":
                     case "TINYINT":
                         DotNetDataType = "int";
+                        FriendlyDataType = "integer";
+                        break;
+
+                    case "BIT":
+                        DotNetDataType = "bool";
+                        FriendlyDataType = "yes/no flag";
                         break;
 
                     case "UNIQUEIDENTIFIER":
                         DotNetDataType = "Guid";
+                        FriendlyDataType = "unique identifier";
                         break;
 
                     case "BINARY":
                         DotNetDataType = "bool";
+                        FriendlyDataType = "binary data";
                         break;
 
                     case "CHAR":
                     case "NCHAR":
-                    case "NVARCHAR":
-                    case "VARCHAR":
+                        FriendlyDataType = "fixed-length string";
                         DotNetDataType = "string";
                         break;
 
+                    case "NVARCHAR":
+                    case "VARCHAR":
+                        DotNetDataType = "string";
+                        FriendlyDataType = "string";
+                        break;
+
                     case "DATE":
+                        FriendlyDataType = "date";
+                        DotNetDataType = "DateTime";
+                        break;
+
                     case "DATETIME":
                     case "DATETIME2":
+                        FriendlyDataType = "date and time";
                         DotNetDataType = "DateTime";
                         break;
 
                     case "DECIMAL":
                     case "NUMERIC":
+                        FriendlyDataType = "decimal number";
                         DotNetDataType = "Decimal";
                         break;
+
+
                 }
             }
 
@@ -83,6 +108,8 @@ namespace StaticSQL
         }
 
         public string DotNetDataType;
+
+        public string FriendlyDataType;
 
         [JsonProperty("default")]
         public string DefaultValue;
