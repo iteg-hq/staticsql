@@ -76,7 +76,7 @@ namespace StaticSQL
             }
             else
             {
-                throw new Exception();
+                throw new StaticSQLException($"File not found: '{path}'");
             }
 
             project.ProjectFolderPath = fileSystem.Path.Combine(folder.FullName, project.relativeProjectFolderPath);
