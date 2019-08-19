@@ -72,7 +72,7 @@ namespace UnitTests
         {
             StaticSQL.Attribute attr = new StaticSQL.Attribute() { DataType = "INT" };
             Assert.AreEqual("INT", attr.SqlDataType);
-            Assert.AreEqual("int", attr.DotNetDataType);
+            Assert.AreEqual("System.Int32", attr.DotNetDataType);
         }
 
         [TestMethod]
@@ -81,7 +81,7 @@ namespace UnitTests
             StaticSQL.Attribute attr = new StaticSQL.Attribute() { DataType = "NVARCHAR(10)" };
             Assert.AreEqual("NVARCHAR", attr.SqlDataType);
             Assert.AreEqual(10, attr.Length);
-            Assert.AreEqual("string", attr.DotNetDataType);
+            Assert.AreEqual("System.String", attr.DotNetDataType);
         }
 
         [TestMethod]
@@ -91,7 +91,7 @@ namespace UnitTests
             Assert.AreEqual("DECIMAL", attr.SqlDataType);
             Assert.AreEqual(10, attr.Length);
             Assert.AreEqual(4, attr.Precision);
-            Assert.AreEqual("Decimal", attr.DotNetDataType);
+            Assert.AreEqual("System.Decimal", attr.DotNetDataType);
         }
     }
 }
