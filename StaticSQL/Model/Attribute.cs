@@ -97,6 +97,10 @@ namespace StaticSQL
                         FriendlyDataType = "decimal number";
                         break;
 
+                    case "FLOAT":
+                        DotNetDataType = "System.Double";
+                        FriendlyDataType = "decimal number (floating-point)";
+                        break;
 
                 }
             }
