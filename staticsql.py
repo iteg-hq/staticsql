@@ -6,6 +6,15 @@ import re
 
 import click
 
+def build_connection_string():
+    connection_info = dict()
+    connection_info["Driver"] = "{ODBC Driver 17 for SQL Server}"
+    connection_info["Server"] = server
+    connection_info["Database"] = database
+    connection_info["Trusted_Connection"] = "yes"
+    connection_string = ";".join("=".join(item) for item in connection_info.items())
+
+
 # Export tool for StaticSQL - extracts live SQL Server tables into metadata files.
 
 extract_query = """
@@ -23,6 +32,7 @@ SELECT
             CAST(max_length AS NVARCHAR(100))
     END AS max_length
   , precision
+  , scale
   , c.is_nullable
 FROM sys.columns AS c
 INNER JOIN sys.tables AS t
@@ -42,14 +52,18 @@ type_formats = {
     "smallint": "SMALLINT",
     "tinyint": "TINYINT",
     "float": "FLOAT",
-    "decimal": "DECIMAL({precision},{max_length})",
+    "decimal": "DECIMAL({precision},{scale})",
+    "numeric": "NUMERIC({precision},{scale})",
     "date": "DATE",
     "datetime": "DATETIME",
+    "datetime2": "DATETIME2({max_length})",
     "nvarchar": "NVARCHAR({max_length})",
     "varchar": "VARCHAR({max_length})",
     "nchar": "NCHAR({max_length})",
     "char": "CHAR({max_length})",
     "uniqueidentifier": "UNIQUEIDENTIFIER",
+    "timestamp": "TIMESTAMP",
+    "image": "IMAGE",
 }
 
 @click.command()
@@ -59,10 +73,11 @@ type_formats = {
 @click.option("-t", "--tables", default=".*", help="Regex to select tables to extract (defaults to .*)")
 @click.option("-c", "--columns", default=".*", help='Regex to select columns, e.g. "^(?!ABC)" to ignore columns starting with "ABC"')
 @click.option("-ts", "--target-schema", default=None, help="Value to use for the schema attribute instead of source schema")
+@click.option("-f", "--folder", default=".", help="Output folder")
 @click.option("-e", "--extension", default=".json", help="Extension of the output file (defaults to .json)")
 @click.option("-i", "--indent", default=2, help="Number of spaces to indent each level of the json output")
 @click.option("-v", "--verbose", is_flag=True, help="More verbose output")
-def staticsql(server, database, schemas, target_schema, tables, columns, extension, indent, verbose):
+def staticsql(server, database, schemas, target_schema, folder, tables, columns, extension, indent, verbose):
     connection_info = dict()
     connection_info["Driver"] = "{SQL Server}"
     connection_info["Server"] = server
@@ -102,14 +117,41 @@ def staticsql(server, database, schemas, target_schema, tables, columns, extensi
                 column_dict = dict()
                 table_dict["attributes"].append(column_dict)
                 column_dict["name"] = column_name
-                column_dict["data_type"] = type_formats[type_name].format(max_length=max_length, precision=precision)
+                column_dict["data_type"] = type_formats[type_name].format(max_length=max_length, precision=precision, scale=scale)
                 column_dict["is_nullable"] = bool(is_nullable)
             if skipped:
                 click.echo("Skipped columns %s" % ", ".join("[%s]" % col for col in skipped))
             file_name = "{0}.{1}{2}".format(schema_name, table_name, extension)
-            with open(file_name, 'w') as f:
+            path = os.path.join(folder, file_name)
+            with open(path, 'w') as f:
                 json.dump(table_dict, f, indent=indent)
     conn.close()
+
+
+def load(connection_string):
+
+    conn = pyodbc.connect(connection_string, autocommit=True)
+    cursor = conn.cursor()
+    cursor.execute("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
+    cursor.execute(extract_query)
+    columns = cursor.fetchall()
+
+    for (schema_name, table_name), table_columns in itertools.groupby(columns, lambda row: row[0:2]):
+        table_dict = {"schema": schema_name, "name": table_name, "attributes": []}
+        for _, _, column_name, type_name, max_length, precision, scale, is_nullable in table_columns:
+            column_dict = dict()
+            table_dict["attributes"].append(column_dict)
+            column_dict["name"] = column_name
+            column_dict["data_type"] = type_formats[type_name].format(max_length=max_length, precision=precision, scale=scale)
+            column_dict["is_nullable"] = bool(is_nullable)
+        yield table_dict
+    conn.close()
+
+def save(table, folder=".", **kwargs):
+    file_name = "{0}.{1}.json".format(table["schema"], table["name"])
+    path = os.path.join(folder, file_name)
+    with open(path, 'w') as f:
+        json.dump(table, f, **kwargs)
 
 
 if __name__=="__main__":

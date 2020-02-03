@@ -10,21 +10,25 @@ namespace StaticSQL
         public ISet<string> Tags = new HashSet<string>();
 
         [JsonProperty("name")]
-        public Name Name;
+        public string RawName;
+
+        public Name Name { get => Entity.Project.GetName(RawName); }
 
         [JsonProperty("description")]
         public string Description;
 
         [JsonProperty("referenced_table")]
-        public Name ReferencedTableName;
+        public string ReferencedTableName;
 
         private string _datatype;
 
         public string SqlDataType;
+
         public int Length;
+
         public int Precision;
 
-        private static Regex typeNameRegex = new Regex(@"^(\w+)(?:\s*\(\s*(\d+)\s*(?:,\s*(\d+)\s*)?\))?$");
+        private readonly static Regex typeNameRegex = new Regex(@"^(\w+)(?:\s*\(\s*(\d+)\s*(?:,\s*(\d+)\s*)?\))?$");
 
         [JsonProperty("data_type")]
         public string DataType
@@ -40,7 +44,8 @@ namespace StaticSQL
                     int.TryParse(m.Groups[2].Value, out Length);
                     int.TryParse(m.Groups[3].Value, out Precision);
                 }
-                switch(SqlDataType){
+                switch (SqlDataType)
+                {
                     case "BIGINT":
                         DotNetDataType = "System.Int64";
                         FriendlyDataType = "integer";

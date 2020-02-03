@@ -70,7 +70,7 @@ namespace StaticSQL.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to policy,monthname,status,description,month,year,day,id,key,version,timestamp,json,row,address,name,by,broker,weight,service,source.
+        ///   Looks up a localized string similar to policy,monthname,status,description,month,year,day,id,key,version,timestamp,json,row,address,name,by,broker,weight,service,source,table,view,schema,index,procedure,sequence.
         /// </summary>
         internal static string Reserved {
             get {

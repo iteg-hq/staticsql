@@ -5,11 +5,17 @@ namespace StaticSQL
 {
     public class Entity
     {
+        public string FilePath = null;
+
         [JsonProperty("schema")]
-        public Name SchemaName = Properties.Resources.UndefinedValue;
+        public string RawSchemaName = Properties.Resources.UndefinedValue;
+
+        public Name SchemaName { get => Project.GetName(RawSchemaName); }
 
         [JsonProperty("name")]
-        public Name Name = Properties.Resources.UndefinedValue;
+        public string RawName = Properties.Resources.UndefinedValue;
+
+        public Name Name { get => Project.GetName(RawName); }
 
         [JsonProperty("description")]
         public string Description = "(No description)";
@@ -25,5 +31,7 @@ namespace StaticSQL
 
         [JsonProperty("data")]
         public IList<Dictionary<string, object>> Data = new List<Dictionary<string, object>>();
+
+        public Project Project;
     }
 }
