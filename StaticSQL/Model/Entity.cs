@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace StaticSQL
@@ -8,14 +8,14 @@ namespace StaticSQL
         public string FilePath = null;
 
         [JsonProperty("schema")]
-        public string RawSchemaName = Properties.Resources.UndefinedValue;
-
-        public Name SchemaName { get => Project.GetName(RawSchemaName); }
+        private readonly string rawSchemaName = Properties.Resources.UndefinedValue;
 
         [JsonProperty("name")]
-        public string RawName = Properties.Resources.UndefinedValue;
+        private readonly string rawName = Properties.Resources.UndefinedValue;
 
-        public Name Name { get => Project.GetName(RawName); }
+        public Name SchemaName { get => Project.GetName(rawSchemaName); }
+
+        public Name Name { get => Project.GetName(rawName); }
 
         [JsonProperty("description")]
         public string Description = "(No description)";
@@ -24,7 +24,7 @@ namespace StaticSQL
         public string Source = Properties.Resources.UndefinedValue;
 
         [JsonProperty("tags")]
-        public ISet<string> Tags = new HashSet<string>();
+        public TagSet Tags = new TagSet();
 
         [JsonProperty("attributes")]
         public IList<Attribute> Attributes = new List<Attribute>();

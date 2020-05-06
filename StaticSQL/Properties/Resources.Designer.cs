@@ -61,7 +61,7 @@ namespace StaticSQL.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ^[a-zA-Z_][a-zA-Z0-9_]*$.
+        ///   Looks up a localized string similar to ^[a-zA-Zæøå_][a-zæøåA-ZÆØÅ0-9_]*$.
         /// </summary>
         internal static string IdentifierRegex {
             get {
@@ -70,7 +70,7 @@ namespace StaticSQL.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to policy,monthname,status,description,month,year,day,id,key,version,timestamp,json,row,address,name,by,broker,weight,service,source,table,view,schema,index,procedure,sequence.
+        ///   Looks up a localized string similar to policy,monthname,status,description,date,month,year,day,id,key,version,timestamp,json,row,address,name,by,broker,weight,service,source,table,view,schema,index,procedure,sequence,url.
         /// </summary>
         internal static string Reserved {
             get {

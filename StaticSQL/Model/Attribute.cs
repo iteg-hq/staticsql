@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
@@ -7,12 +7,12 @@ namespace StaticSQL
     public class Attribute
     {
         [JsonProperty("tags")]
-        public ISet<string> Tags = new HashSet<string>();
+        public TagSet Tags = new TagSet();
 
         [JsonProperty("name")]
-        public string RawName;
+        private readonly string rawName = Properties.Resources.UndefinedValue;
 
-        public Name Name { get => Entity.Project.GetName(RawName); }
+        public Name Name { get => Entity.Project.GetName(rawName); }
 
         [JsonProperty("description")]
         public string Description;
@@ -106,7 +106,10 @@ namespace StaticSQL
                         DotNetDataType = "System.Double";
                         FriendlyDataType = "decimal number (floating-point)";
                         break;
-
+                    default:
+                        DotNetDataType = SqlDataType;
+                        FriendlyDataType = SqlDataType;
+                        break;
                 }
             }
 

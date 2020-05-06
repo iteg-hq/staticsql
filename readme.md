@@ -1,10 +1,6 @@
 # StaticSQL
 
-StaticSQL lets you write metadata-driven templates in Visual Studio.
-
-Rather than write e.g. a loader for each dimension in your data warehouse or for each history table in your staging layer, you can write a T4 template that generates all the loader code based on entity metadata stored in json files.
-
-StaticSQL has a simple user interface and a minimum of dependencies.
+StaticSQL lets you write metadata-driven templates in Visual Studio: Rather than write e.g. a loader for each dimension in your data warehouse or for each history table in your staging layer, you can write a T4 template that generates all the loader code based on entity metadata stored in json files.
 
 ## Installation
 
@@ -37,7 +33,7 @@ This section shows how to create a database project in Visual Studio, add metada
 You will need the following installed to complete the tutorial:
 
 - StaticSQL (see previous section) .
-- Visual Studio with the "Data storage an processing" workload.
+- Visual Studio with the "Data storage and processing" workload.
 
 ### Create a new project
 
@@ -84,13 +80,13 @@ Next, create some entity metadata to drive the templates:
   
   This is entity metadata that StaticSQL will make available to the templates.
 
-### Create an StaticSQL project file
+### Create a StaticSQL project file
 
 Now, create a project file, that points to the entity metadata:
 
 - Create a text file in the root of the project (right click the project, "Add" > "New Item..." > "Text File").
 
-- Rename the file `sample.staticsql`.
+- Rename the file `staticsql.json`.
 
 - Set the contents to:
 
@@ -100,9 +96,9 @@ Now, create a project file, that points to the entity metadata:
   }
   ~~~
 
-  This tells StaticSQL where the entity metadata lives. The path of the entity folder is relative to the directory of the project file.
+  This tells StaticSQL where the entity metadata lives. The path of the entity folder is relative to the directory of the project file (and could have been omitted here, since it defaults to "StaticSQL").
   
-  When processing the template, StaticSQL will search the directory of the template, then the parent directory and so on until it finds the project file. Placing the StaticSQL project file in the root of the Visual Studio project makes the metadata available to all templates in the project.
+  When processing the template, StaticSQL will search the directory of the template, then the parent directory and so on until it finds `staticsql.json`. Placing it in the root of the Visual Studio project makes the metadata available to all templates in the project.
 
 ### Create T4 templates
 
@@ -121,23 +117,22 @@ Next, add some templates to the entity metadata folder:
     <#@ assembly name="StaticSQL.dll" #>
     <#@ import namespace="StaticSQL" #>
     <# Project project = Project.Load(Host.ResolvePath(".")); #>
-    <# project.Formatter = FormatterFactory.PascalCaseQuoteIfNeeded(); #>
     
     <# foreach(var entity in project.Entities) { #>
     CREATE TABLE dbo.<#= entity.Name #>Table (
-        <#= entity.Name #>ID INT NOT NULL
-    <# foreach(var attribute in entity.Attributes) { #>
+        <#= entity.Name + "ID" #> INT NOT NULL
+    <#   foreach(var attribute in entity.Attributes) { #>
       , <#= attribute.Name #> <#= attribute.DataType #> <#= attribute.NullabilityString #>
-    <# } #>
+    <#   } #>
       , InsertedOn DATETIME2(7) DEFAULT SYSUTCDATETIME()
       , CONSTRAINT PK_<#= entity.Name #> PRIMARY KEY ( <#= entity.Name #>ID, InsertedOn )
       )
     
     GO
-<# } #>
-    ~~~
-
-- Save it - Visual Studio should generate a file beneath the template file. The table definition in that file corresponds closely to the entity, only we've added an ID and an insert timestamp.
+    <# } #>
+~~~
+    
+- Save it - Visual Studio should generate a file under the template file. The table definition in that file corresponds closely to the entity, only we've added an ID and an insert timestamp.
 
 - Next, create a stored procedure to insert rows into the table. Add a new template called `InsertProcedure.tt` and set the content to:
 
@@ -148,33 +143,32 @@ Next, add some templates to the entity metadata folder:
     <#@ assembly name="StaticSQL.dll" #>
     <#@ import namespace="StaticSQL" #>
     <# Project project = Project.Load(Host.ResolvePath(".")); #>
-    <# project.Formatter = FormatterFactory.PascalCaseQuoteIfNeeded(); #>
     
     <# foreach(var entity in project.Entities) { #>
-    CREATE PROCEDURE dbo.Add<#= entity.Name #>
-        @<#= entity.Name #>ID INT
+    CREATE PROCEDURE dbo.<#= "Add" + entity.Name #>
+        @<#= entity.Name + "ID" #> INT
     <# foreach(var attribute in entity.Attributes) { #>
       , @<#= attribute.Name #> <#= attribute.DataType #>
     <# } #>
     AS
     
     INSERT INTO dbo.<#= entity.Name #>Table (
-        <#= entity.Name #>ID
+        <#= entity.Name + "ID" #>
     <# foreach(var attribute in entity.Attributes) { #>
       , <#= attribute.Name #>
     <# } #>
     )
     VALUES (
-        @<#= entity.Name #>ID
+        @<#= entity.Name.Value #>ID
     <# foreach(var attribute in entity.Attributes) { #>
-      , @<#= attribute.Name #>    
+      , @<#= attribute.Name.Value #>    
     <# } #>
     )
     
     GO
     <# } #>
     ~~~
-
+    
 -  Finally, create a view to show only the last row inserted for each ID: Add a new template called `View.tt` and set the content to:
 
     ~~~c#
@@ -184,7 +178,6 @@ Next, add some templates to the entity metadata folder:
     <#@ assembly name="StaticSQL.dll" #>
     <#@ import namespace="StaticSQL" #>
     <# Project project = Project.Load(Host.ResolvePath(".")); #>
-    <# project.Formatter = FormatterFactory.PascalCaseQuoteIfNeeded(); #>
     
     <# foreach(var entity in project.Entities) { #>
     CREATE VIEW dbo.<#= entity.Name #>
@@ -193,11 +186,11 @@ Next, add some templates to the entity metadata folder:
     <# foreach(var attribute in entity.Attributes) { #>
       <#= attribute.CommaBefore #> <#= attribute.Name #>    
     <# } #>
-    FROM dbo.<#= entity.Name #>Table AS outer_table
+    FROM dbo.<#= entity.Name + "Table" #> AS outer_table
     WHERE NOT EXISTS (
         SELECT 1
         FROM dbo.<#= entity.Name #>Table AS inner_table
-        WHERE inner_table.<#= entity.Name #>ID = outer_table.<#= entity.Name #>ID
+        WHERE inner_table.<#= entity.Name + "ID" #> = outer_table.<#= entity.Name #>ID
           AND inner_table.InsertedOn > outer_table.InsertedOn
       )
     

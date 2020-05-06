@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StaticSQL;
 using System.IO.Abstractions;
@@ -14,7 +14,7 @@ namespace UnitTests
         public IFileSystem GetFileSystem()
         {
             MockFileSystem fs = new MockFileSystem();
-            fs.AddFile(@"C:\test\test.staticsql", new MockFileData("{ \"entity_folder\": \"StaticSQL\"}"));
+            fs.AddFile(@"C:\test\staticsql.json", new MockFileData("{ \"entity_folder\": \"StaticSQL\"}"));
 
             fs.AddDirectory(@"C:\test\subfolder");
 
@@ -22,8 +22,8 @@ namespace UnitTests
             fs.AddFile(@"C:\test\StaticSQL\entity.json", new MockFileData("{\"attributes\": \"\"}"));
             fs.AddDirectory(@"C:\empty");
 
-            fs.AddFile(@"C:\double\one.staticsql", new MockFileData("{ \"entity_folder\": \"StaticSQL\"}"));
-            fs.AddFile(@"C:\double\two.staticsql", new MockFileData("{ \"entity_folder\": \"StaticSQL\"}"));
+            fs.AddFile(@"C:\double\staticsql1.json", new MockFileData("{ \"entity_folder\": \"StaticSQL\"}"));
+            fs.AddFile(@"C:\double\staticsql2.json", new MockFileData("{ \"entity_folder\": \"StaticSQL\"}"));
 
             return fs;
         }
@@ -48,7 +48,7 @@ namespace UnitTests
         public void TestLoadFromPath()
         {
             var fs = GetFileSystem();
-            var project = Project.Load(@"C:\test\test.staticsql", fs);
+            var project = Project.Load(@"C:\test\staticsql.json", fs);
             Assert.IsNotNull(project);
             Assert.AreEqual(@"C:\test\StaticSQL", project.EntityFolderPath);
         }
@@ -112,49 +112,14 @@ namespace UnitTests
             Assert.AreEqual("System.Decimal", attr.DotNetDataType);
         }
 
-        [TestMethod]
-        public void TestPascalCase()
-        {
-            Name name = new Name("foo bar", FormatterFactory.PascalCase());
-            Assert.AreEqual("FooBar", name.ToString());
-        }
+
 
         [TestMethod]
-        public void TestFormatter()
+        public void TestTagSetGetValue()
         {
-            Name name = new Name("tab le", new CombinedFormatter(FormatterFactory.PascalCase(), FormatterFactory.QuoteIfNeeded()));
-            Assert.AreEqual("[TabLe]", name.ToString());
-        }
+            var tags = new TagSet { "foo:bar" };
 
-        [TestMethod]
-        public void TestPascalCaseQuoteIfNeeded()
-        {
-            Name name = new Name("tab le", FormatterFactory.PascalCaseQuoteIfNeeded());
-            Assert.AreEqual("[TabLe]", name.ToString());
+            Assert.AreEqual("bar", tags.GetValue("foo"));
         }
-
-        [TestMethod]
-        public void TestCamelCase()
-        {
-            Name name = new Name("foo bar", FormatterFactory.CamelCase());
-            Assert.AreEqual("fooBar", name.ToString());
-        }
-
-        /*
-        [TestMethod]
-        public void TestSnakeCase()
-        {
-            Name name = new Name("foo bar", FormatterFactory.CamelCase());
-            Assert.AreEqual("foo_bar", name.ToString());
-        }
-
-        [TestMethod]
-        public void TestScreamingSnakeCase()
-        {
-            Name name = new Name("foo bar", FormatterFactory.CamelCase());
-            Assert.AreEqual("FOO_BAR", name.ToString());
-        }
-        */
     }
-
 }
